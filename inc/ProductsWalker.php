@@ -272,6 +272,21 @@ class ProductsWalker
 
       $product->set_price($price);
       $product->set_regular_price($price);
+
+      /* Цена со скидкой */
+      $price_value = 0;
+      $price_name = get_option('wooms_price_sale_name');
+      
+      foreach ($data_of_source["salePrices"] as $price_item) {
+          if ($price_item["priceType"]['name'] == $price_name) {
+              $price_value = $price_item["value"];
+          }
+      }
+
+      $price_value = floatval($price_value) / 100;
+      $price_value = round($price_value, 2);
+
+      update_post_meta( $product_id, '_sale_price', $price_value );
     }
 
     // issue https://github.com/wpcraft-ru/wooms/issues/302
@@ -473,7 +488,9 @@ class ProductsWalker
 
     if (isset($data_source['article'])) {
       $product->set_sku($data_source['article']);
-    }
+    } elseif (isset($data_source['code'])) { // Если нет артикула, то заменить кодом
+	  $product->set_sku($data_source['code']);
+	}
 
     $product_id = $product->save();
 
@@ -724,4 +741,12 @@ class ProductsWalker
 
     set_transient(self::$state_transient_key, $state);
   }
+}
+
+function write_log($log) {
+    if (is_array($log) || is_object($log)) {
+        error_log(print_r($log, true));
+    } else {
+        error_log($log);
+    }
 }
