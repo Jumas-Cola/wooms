@@ -167,8 +167,10 @@ class ProductsWalker
     }
 
     //создаем продукт, если не нашли
+    $is_new_product = false;
     if (empty(intval($product_id))) {
       $product_id = self::add_product($value);
+      $is_new_product = true;
     }
 
     if (empty(intval($product_id))) {
@@ -200,6 +202,11 @@ class ProductsWalker
       $product->update_meta_data('wooms_data_api', json_encode($data_api, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     } else {
       $product->delete_meta_data('wooms_data_api');
+    }
+
+    /* Добавлять товар, как скрытый по умолчанию */
+    if ($is_new_product) {
+      $product->set_catalog_visibility('hidden');
     }
 
     $product_id = $product->save();
@@ -290,7 +297,7 @@ class ProductsWalker
     }
 
     // issue https://github.com/wpcraft-ru/wooms/issues/302
-    $product->set_catalog_visibility('visible');
+    /* $product->set_catalog_visibility('visible'); */
 
     if ($reset = apply_filters('wooms_reset_state_products', true)) {
       $product->set_stock_status('instock');
