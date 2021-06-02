@@ -168,7 +168,7 @@ class ProductsWalker
 
     //создаем продукт, если не нашли
     $is_new_product = false;
-    if ($product_id == 0) {
+    if (empty(intval($product_id))) {
       $product_id = self::add_product($value);
       $is_new_product = true;
     }
